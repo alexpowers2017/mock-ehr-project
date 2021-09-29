@@ -2,10 +2,10 @@
 
 sql_connection <- dbConnect(odbc(),
     Driver = "ODBC Driver 17 for SQL Server",
-    Server = "tcp:clinicoeus-server.database.windows.net",
-    Database = "ehr",
-    UID = "alex",
-    PWD = "QOSpwd123",
+    Server = "SQL Server url",
+    Database = "database",
+    UID = "userid",
+    PWD = "password",
     Port = 1433)
 
 

@@ -29,23 +29,52 @@ Patients | 10,000 | PatientCorePopulatedTable
 Admissions | 36,143 | AdmissionsCorePopulatedTable
 Lab | 100,000 | LabsCorePopulatedTable
 Diagnosis | 36,143 | DiagnosisCorePopulatedTable
-
-#### Identify wasteful storage in the current data types
+  
+&nbsp;
+### Identify wasteful storage in the current data types
+----------------------------
 * ```PatientID```
    * Each ID is 36 random numbers and letters, and would have to be saved as ```nchar(36)``` in its current form. 
    * This field will be used to join many tables with 10K+ rows, so it should to be changed to an ```int``` for efficient indexing. 
-   * Storage impact: **1.66MB &#8594; 0.18MB** overall (36 bytes &#8594; 4 bytes per ID and it will be in the patients and admissions table - 46,143 total rows)
+   * The new ```int``` version will be named ```patient_id```.
+   * Storage impact: **1.66 MB &#8594; 0.18 MB** overall (36 bytes &#8594; 4 bytes per ID and it will be in the patients and admissions table - 46,143 total rows)
+* ```AdmissionID```
+   * This field is not a unique identifier but instead counts the admissions a given patient went through. We currently need both ```PatientID``` and ```AdmissionID``` to find information for a specific admission. It is stored as a ```smallint``` (2 bytes per value).
+   * If we create a unique identifier for each admission, it could link the ```admissions``` table to the ```lab``` and ```diagnosis``` tables without using ```PatientID```, and we could use the ```admissions``` table to link back to ```patients```
+   * This new field, ```admission_id```, would be an ```int``` and would replace the ```AdmissionID``` and ```PatientID``` in both the ```lab``` and ```diagnosis``` tables.
+   * Storage impact: **5.17 MB &#8594; 0.54 MB** (36 + 2 bytes currently stored in 136,149 rows - replaced by 4 bytes in the same number of rows)
 * ```AdmissionStartDate```, ```AdmissionEndDate```, and ```LabDateTime```
    * All stored as ```datetime```, which includes seconds and milliseconds. 
    * It's unlikely that any strategic decisions could be affected by a difference of seconds (but I'd check with the client first)
    * So, these will be stored as ```smalldatetime```, which stores date, hours, and minutes in bytes as opposed to 8 bytes for ```datetime``` 
-   * Storage impact: **1.38MB &#8594; 0.69MB** (172,268 values, one for each lab and two for each admission)
+   * Storage impact: **1.38 MB &#8594; 0.69 MB** (172,268 values, one for each lab and two for each admission)
 * ```PatientDateOfBirth```
    * This field is stored as a ```datetime```, but there is virtually no utility to knowing the hour, minute, and second a person is born
    * This will be converted to a ```date```, which uses 3 bytes to ```datetime```'s 8.
-   * Storage impact: **0.08MB &#8594; 0.03MB** (10K values, one for each patient)
+   * Storage impact: **0.08 MB &#8594; 0.03 MB** (10K values, one for each patient)
+* ```PatientGender```
+   * The dataset currently stores this as a ```varchar(6)``` with possible values are 'Male' or 'Female'
+   * We can replace this with ```gender_code```, ```char(1)``` with 'M', 'F', or 'O' for undefined or other values
+   * Storage impact: **0.06 MB &#8594; 0.01 MB**
 
-#### Increase efficiency through *dimension tables*
+Just by changing these data types, we can use **1.45 MB** to store what would have taken **8.35 MB**.
+
+This is the new state of the datasets.
+
+![column transformation diagram](https://github.com/alexpowers2017/mock-ehr-project/blob/main/documentation/column_transformations_diagram.JPG)
+&nbsp;
+### Save storage with dimension tables
+----------------------
+```patient``` table
+* ```PatientRace```, ```PatientMaritalStatus```, and ```PatientLanguage``` each have a handful of unique text values, repeated up to 10,000 times. 
+* Taking the average length of a ```varchar``` field and adding 1 is a close approximation of the # of bytes used per row (1 byte per character + 1 to store the length itself), so these are some estimates about the total memory used in these columns.
+   Column | Avg. length | Est. bytes used | Total memory used in table
+   -------|-------------|-----------------|-------------------------
+   ```PatientRace``` | 10 | 11 | 0.11 MB
+   ```PatientMaritalStatus``` | 7 | 8 | 0.08 MB
+   ```PatientLanguage``` | 8 | 9 | 0.09 MB
+* 
+
 
 #### Design Data Warehouse
 * Designed as Snowflake Schema DW

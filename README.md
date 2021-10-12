@@ -66,14 +66,15 @@ This is the new state of the datasets.
 ### Save storage with dimension tables
 ----------------------
 ```patient``` table
-* ```PatientRace```, ```PatientMaritalStatus```, and ```PatientLanguage``` each have a handful of unique text values, repeated up to 10,000 times. 
+* ```PatientRace```, ```PatientMaritalStatus```, and ```PatientLanguage``` each have 4-6 unique text values, each repeated thousands of times. 
 * Taking the average length of a ```varchar``` field and adding 1 is a close approximation of the # of bytes used per row (1 byte per character + 1 to store the length itself), so these are some estimates about the total memory used in these columns.
    Column | Avg. length | Est. bytes used | Total memory used in table
    -------|-------------|-----------------|-------------------------
    ```PatientRace``` | 10 | 11 | 0.11 MB
    ```PatientMaritalStatus``` | 7 | 8 | 0.08 MB
    ```PatientLanguage``` | 8 | 9 | 0.09 MB
-* 
+   **Total** | | | **0.28 MB**
+* If we map each of those to a numeric ID, we can create small dimension tables 
 
 
 #### Design Data Warehouse

@@ -16,9 +16,12 @@
    1. [Patient Dimension Tables](#patient-dimension-tables)
    2. [Patient Fact Table](#patient-fact-table)
 3. [ETL](#etl) 
-4. Incorporate additional data sources
-5. Create detailed views
-6. Create interactive visualizations or dashboards (in progress)
+   1. [Pull from source file](#pull-from-source-file)
+   2. [Replace patient and admission IDs](#replace-patient-and-admission-ids)
+   3. [Create Dimension Tables](#create-dimension-tables)
+   4. [Upload to SQL](#upload-to-sql)
+4. Tableau visualizations/dashboards (in progress)
+
 
 &nbsp;
 
@@ -567,3 +570,10 @@ dbWriteTable(
     append=TRUE
 )
 ```
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+## THE END
+That's all, folks

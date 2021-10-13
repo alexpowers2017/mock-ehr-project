@@ -1,34 +1,43 @@
 # Mock EHR Database
 
-### About
-This project uses randomized sample EHR data to create an end-to-end business intelligence solution. It was created to serve two purposes:
-* A portfolio project for me
-* An open-source sample EHR database for me and anyone interested to use as a sandbox while developing healthcare BI or software solutions
+&nbsp;
 
+## Contents
 
-### Source Data
-The EHR dummy data is provided by Stockato, LLC at [emrbots.org](http://www.emrbots.org). 
-* It contains 10,000 patients with admissions, diagnosis, and labs data for each. 
-* The data itself is in tab-delimited text files, which come in a zip folder, downloaded from the above website. 
-* The files I used are available in the [input_data](/input_data) folder for reference.
-
-
-### Tasks
-1. Design Data Warehouse
-   1. Optimize Data Types
-   2. Patient Dimension Tables
-   3. Diagnosis Dimension Tables
-   4. Lab Dimension Tables
-   5. Final Entity Relationship Diagram
-   6. Limitations, design decisions, and potential improvements
+1. [About](#about)
+2. [Design Data Warehouse](#design-data-warehouse)
+   1. [Optimize Data Types](#optimize-data-types)
+   2. [Patient Dimension Tables](#patient-dimension-tables)
+   3. [Diagnosis Dimension Tables](#diagnosis-dimension-tables)
+   4. [Lab Dimension Tables](#lab-dimension-tables)
+   5. [Final Entity Relationship Diagram](#final-entity-relationship-diagram)
+   6. [Limitations, design decisions, and potential improvements](#limitations-design-decisions-and-potential-improvements)
 2. Create SQL Tables
 3. Implement ETL 
 4. Incorporate additional data sources
 5. Create detailed views
 6. Create interactive visualizations or dashboards (in progress)
 
+&nbsp;
+
+## About
+This project uses randomized sample EHR data to create an end-to-end business intelligence solution. It was created to serve two purposes:
+* A portfolio project for me
+* An open-source sample EHR database for me and anyone interested to use while developing healthcare BI or software solutions
+
+&nbsp;
+
+### Source Data
+----------------------------
+The EHR dummy data is provided by Stockato, LLC at [emrbots.org](http://www.emrbots.org). 
+* It contains 10,000 patients with admissions, diagnosis, and labs data for each. 
+* The data itself is in tab-delimited text files, which come in a zip folder, downloaded from the above website. 
+* The files I used are available in the [input_data](/input_data) folder for reference.
+
+&nbsp;
 
 ## Design Data Warehouse
+
 Structure of the input data:
 ![Input data diagram](https://github.com/alexpowers2017/mock-ehr-project/blob/main/documentation/Input%20data%20diagram.JPG?raw=true)
 
@@ -91,7 +100,7 @@ Current structure of the patient data:
 
 ```PatientRace```, ```PatientMaritalStatus```, and ```PatientLanguage``` each have 4-6 unique text values, each repeated thousands of times. 
 
-Taking the average length of a ```varchar``` field and adding 1 is a close approximation of the # of bytes used per row (1 byte per character + 1 to store the length itself), so these are some estimates about the total memory used in these columns.
+Taking the average length of a ```varchar``` field and adding 1 is a close approximation of the # of bytes used per row (1 byte per character + 1 to store the length itself), so these are the estimates for the total memory used in these columns.
 
    Column | Avg. length | Est. bytes used | # Rows | Total storage used
    -------|-------------|-----------------|---------|----------------
@@ -218,16 +227,15 @@ New structure of the labs data:
 
 This diagram includes two new lab tables mentioned in the section below
 
+&nbsp;
 
 ### Limitations, design decisions, and potential improvements
 ----------------------
-```Patient``` table
-* Stuff
 
 ```Diagnosis``` table
 * The ICD-10 code isn't necessarily the most efficient field to use as a primary key.
    * We could replace it with a ```smallint``` ID to save some space and slightly speed up joins. 
-   * However, it is already a domain-wide unique identifier for diagnoses, so using it as the primary key is more intuitive to any new user. 
+   * However, it's already a domain-wide unique identifier for diagnoses, so using it as the primary key is intuitive to any new user. 
    * I think that's worth trading a little efficiency for.
 * In the data's current state, the most efficient design would be to add the diagnosis code to the ```admission``` table
    * From there, it could directly reference the ```diagnosis_dim``` table

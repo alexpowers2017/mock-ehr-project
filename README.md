@@ -12,8 +12,8 @@
    4. [Lab Dimension Tables](#lab-dimension-tables)
    5. [Final Entity Relationship Diagram](#final-entity-relationship-diagram)
    6. [Limitations, design decisions, and potential improvements](#limitations-design-decisions-and-potential-improvements)
-2. Create SQL Tables
-3. Implement ETL 
+2. [Create SQL Tables](#create-sql-tables)
+3. [ETL](#etl) 
 4. Incorporate additional data sources
 5. Create detailed views
 6. Create interactive visualizations or dashboards (in progress)
@@ -251,20 +251,123 @@ This diagram includes two new lab tables mentioned in the section below
    * Some of the abbreviations used are correct, but uncommon and may not be understood at first glance
    *  A small, 13-row table mapping units to their full names could make reports based on this data much easier to understand
 
-
-
-#### Design Data Warehouse
-* Designed as Snowflake Schema DW
-
-
+&nbsp;
    
-#### Create SQL Tables
-* Scripts located in [sql_scripts](/sql_scripts) folder.
-#### ETL
-* [Diagram of transformations required to_input_data](/documentation/Data%20Transformations.pdf)
-   * Tool used: R
-   * 
-   * Scripts located in the [read_clean_reshape_and_upload_data](/read_clean_reshape_and_upload_data) folder
+## Create SQL Tables
+
+Scripts located in [sql_scripts](/sql_scripts) folder.
+
+These tables were created in an Azure SQL database using SQL Server Management Studio. There is still a relatively small # of tables and no reason to limit access, so no schemas were used and everything will be created in the 'dbo' schema by default. 
+
+We've already gone through the design of all of the tables, so I'll just include one fact/dim group here.
+
+&nbsp;
+
+### Patient Dimension tables
+------------------------------
+```SQL
+-- If the tables already exist in the database and these scripts are being run to replace them  
+-- with a new definition, the foreign key referemces could be a problem. We'll drop them first
+
+if object_id('fk_patient_fact_language_dim', 'f') is not null
+	alter table [patient_fact]
+	drop constraint [fk_patient_fact_language_dim];
+go
+
+if object_id('fk_patient_fact_race_dim', 'f') is not null
+	alter table [patient_fact] 
+	drop constraint [fk_patient_fact_race_dim];
+go
+
+if object_id('fk_patient_fact_marital_status_dim', 'f') is not null
+	alter table [patient_fact] 
+	drop constraint [fk_patient_fact_marital_status_dim];
+go
+
+
+
+-- Then we'll drop the dimension tables if they exist
+if object_id('race_dim', 'u') is not null
+	drop table [race_dim];
+go
+
+if object_id('marital_status_dim', 'u') is not null
+	drop table [marital_status_dim];
+go
+
+if object_id('language_dim', 'u') is not null
+	drop table [language_dim];
+go
+
+
+
+-- Now that the coast is clear, we'll create the tables as defined in the Data Warehouse Design section
+create table [race_dim] (
+	[race_id] (tinyint) not null,
+	[race_name] (varchar(30)) not null,
+
+	constraint [pk_race_dim] primary key ([race_id])
+); 
+go
+
+create table [marital_status_dim] (
+	[marital_status_id] (tinyint) not null,
+	[marital_status_name] (varchar(10)) not null,
+
+	constraint [pk_marital_status_dim] primary key ([marital_status_id])
+);
+go
+
+create table [language_dim] (
+	[language_id] (tinyint) not null,
+	[language_name] (varchar(10)) not null,
+
+	constraint [pk_language_dim] primary key ([language_id])
+);
+go
+```
+
+&nbsp;
+
+### Patient Fact table
+------------------------------
+```SQL
+-- First, drop the table if it exists
+-- Once the table is full and in use, an 'alter table' command would be a more appropriate approach
+
+if object_id('patient_fact', 'u') is not null
+	drop table [patient_fact];
+go
+
+
+create table [patient_fact] (
+	[patient_id] int not null,
+	[race_id] tinyint not null,
+	[marital_status_id] tinyint not null,
+	[language_id] tinyint not null,
+	[gender_code] char(1) not null,
+	[birth_date] date,
+	[percent_below_poverty] decimal(10, 2),
+
+   -- these could be assigned in the column definitions, but this is at an early enough stage where I may need to drop/alter the constraints
+   -- naming them makes it way easier to do that
+	constraint [pk_patient_fact] primary key ([patient_id]),
+	constraint [fk_patient_fact_race_dim] foreign key ([race_id]) references [race_dim]([race_id]),
+	constraint [fk_patient_fact_marital_status_dim] foreign key ([marital_status_id]) references [marital_status_dim]([marital_status_id]),
+	constraint [fk_patient_fact_language_dim] foreign key ([language_id]) references [language_dim]([language_id])
+); 
+go
+
+-- if you were wondering, I write my SQL all lowercase because I am a rebel at heart
+```
+
+
+&nbsp;
+
+## ETL
+
+Scripts located in the [read_clean_reshape_and_upload_data](/read_clean_reshape_and_upload_data) folder
+
 5. Create reference tables for expected lab values
    * This will allow us to gain real insights from the patients' lab scores
    * High-quality sources were used, but interpreting lab scores requires a physician's expertise. This is for academic purposes only.

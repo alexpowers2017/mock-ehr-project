@@ -74,8 +74,38 @@ This is the new state of the datasets.
    ```PatientMaritalStatus``` | 7 | 8 | 0.08 MB
    ```PatientLanguage``` | 8 | 9 | 0.09 MB
    **Total** | | | **0.28 MB**
-* If we map each of those to a numeric ID, we can create small dimension tables 
+* If we map each of those to a numeric ID, we can create small dimension tables to hold the text values and use ```tinyint``` (1 byte) ID columns in the ```patient``` table to reference those values.
+* We'll create three tables, each with two columns:
+   * ```race_dim```: ```race_id``` (```tinyint```), ```race_name``` (```varchar(15)```)
+   * ```marital_status_dim```: ```marital_status_id``` (```tinyint```), ```marital_status_name``` (```varchar(10)```)
+   * ```language_dim```: ```language_id``` (```tinyint```), ```language_name``` (```varchar(10)```)
+* Then in the patient table, we'd make the following replacements:
+   * ```PatientRace``` &#8594; ```race_id```
+   * ```PatientMaritalStatus``` &#8594; ```marital_status_id```
+   * ```PatientLanguage``` &#8594; ```language_id```
 
+   Storage estimates for this method would be:
+
+   Table | Column | Est. bytes used | Total memory used in table
+   ------|--------|-----------------|----------------------------
+   ```patient``` | ```race_id``` | 1 | 0.01 MB
+   ```patient``` | ```language_id``` | 1 | 0.01 MB
+   ```patient``` | ```marital_status_id``` | 1 | 0.01 MB
+   ```race_dim``` | ```race_id``` | 1 | 0.000004 MB
+   ```race_dim``` | ```race_name``` | 15 | 0.00006 MB
+   ```race_dim``` | table overhead | 276 bytes | 0.00028 MB
+   ```marital_status_dim``` | ```marital_status_id``` | 1 | 0.000006 MB
+   ```marital_status_dim``` | ```marital_status_name``` | 10 | 0.00006 MB
+   ```marital_status_dim``` | table overhead | 276 bytes | 0.00028 MB
+   ```language_dim``` | ```language_id``` | 1 | 0.000004 MB
+   ```language_dim``` | ```language_name``` | 10 | 0.00004 MB
+   ```language_dim``` | table overhead | 276 bytes | 0.00028 MB
+   **Total** | | | **0.03 MB**
+* So the total storage difference is **0.28 MB** &#8594; **0.03 MB**
+   * It may seem like a lot of work to save 0.2 MB, but the new method uses a 10th the space and this gap will grow continuously larger as more rows are added to the ```patient``` table
+   
+
+   
 
 #### Design Data Warehouse
 * Designed as Snowflake Schema DW

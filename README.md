@@ -6,21 +6,15 @@
 
 1. [About](#about)
 2. [Design Data Warehouse](#design-data-warehouse)
-   1. [Optimize Data Types](#optimize-data-types)
-   2. [Patient Dimension Tables](#patient-dimension-tables)
-   3. [Diagnosis Dimension Tables](#diagnosis-dimension-tables)
-   4. [Lab Dimension Tables](#lab-dimension-tables)
-   5. [Final Entity Relationship Diagram](#final-entity-relationship-diagram)
-   6. [Limitations, design decisions, and potential improvements](#limitations-design-decisions-and-potential-improvements)
-2. [Create SQL Tables](#create-sql-tables)
+3. [Create SQL Tables](#create-sql-tables)
    1. [Patient Dimension Tables](#patient-dimension-tables)
    2. [Patient Fact Table](#patient-fact-table)
-3. [ETL](#etl) 
+4. [ETL](#etl) 
    1. [Pull from source file](#pull-from-source-file)
    2. [Replace patient and admission IDs](#replace-patient-and-admission-ids)
    3. [Create Dimension Tables](#create-dimension-tables)
    4. [Upload to SQL](#upload-to-sql)
-4. Tableau visualizations/dashboards (in progress)
+5. Tableau visualizations/dashboards (in progress)
 
 
 &nbsp;
@@ -60,7 +54,7 @@ Diagnosis | 36,143 | DiagnosisCorePopulatedTable
 
 ![Final Data Warehouse Diagram](https://github.com/alexpowers2017/mock-ehr-project/blob/main/documentation/Final%20DW%20Diagram.JPG?raw=true)
 
-Detailed overview of optimization located in [database optimization](/documentation/database optimization.md) file.
+Detailed overview of optimization located in [database optimization](https://github.com/alexpowers2017/mock-ehr-project/blob/main/documentation/database%20optimization.md) file.
 &nbsp;
 
 ## Create SQL Tables

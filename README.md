@@ -71,7 +71,7 @@ We've already gone through the design of all of the tables, so I'll just include
 ------------------------------
 ```SQL
 -- If the tables already exist in the database and these scripts are being run to replace them  
--- with a new definition, the foreign key referemces could be a problem. We'll drop them first
+-- with a new definition, the foreign key references could be a problem. We'll drop them first
 
 if object_id('fk_patient_fact_language_dim', 'f') is not null
 	alter table [patient_fact]

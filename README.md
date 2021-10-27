@@ -54,8 +54,16 @@ Diagnosis | 36,143 | DiagnosisCorePopulatedTable
 
 ![Final Data Warehouse Diagram](https://github.com/alexpowers2017/mock-ehr-project/blob/main/documentation/Final%20DW%20Diagram.JPG?raw=true)
 
-Detailed overview of optimization located in [database optimization](https://github.com/alexpowers2017/mock-ehr-project/blob/main/documentation/database%20optimization.md) file.
-&nbsp;
+   
+Several changes were made to optimize storage and speed, detailed in the [database optimization](https://github.com/alexpowers2017/mock-ehr-project/blob/main/documentation/database%20optimization.md) file. The summary of these changes is:
+Category|Space Used Before|Space Used After
+--------|-----------------|-----------------
+Inefficient data types|8.92 MB|1.45 MB
+Patient dimension tables|0.23 MB|0.03 MB
+Diagnosis dimension tables|2.02 MB|0.37 MB
+Lab dimension tables|2.5 MB|0.101 MB
+
+<br>
 
 ## Create SQL Tables
 

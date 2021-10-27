@@ -1,6 +1,16 @@
+This document details the steps taken to save storage space and improve speed in the database.
+
+1. [Optimize Data Types](#optimize-data-types)
+2. [Patient Dimension Tables](#patient-dimension-tables)
+3. [Diagnosis Dimension Tables](#diagnosis-dimension-tables)
+4. [Lab Dimension Tables](#lab-dimension-tables)
+   
+<br>
+   
 
 ### Optimize Data Types
 ----------------------------
+Many of the columns in the original data have values that are stored in a slightly or extremely inefficient form. This section details the decisions made in reshaping each data type.
 
 ```PatientID```
 * Each ID is 36 random numbers and letters, and would have to be saved as ```nchar(36)``` in its current form. 
@@ -23,7 +33,7 @@
 * Storage impact: **1.38 MB &#8594; 0.69 MB** (172,268 values, one for each lab and two for each admission)
 
 ```PatientDateOfBirth```
-* This field is stored as a ```datetime```, but there is virtually no utility to knowing the hour, minute, and second a person is born
+* This field is stored as a ```datetime```, but there is no utility to knowing the hour, minute, and second a person is born
 * This will be converted to a ```date```, which uses 3 bytes to ```datetime```'s 8.
 * Storage impact: **0.08 MB &#8594; 0.03 MB** 
    * 10K values, one for each patient
